@@ -6,6 +6,11 @@ import { Location } from "@angular/common";
 
 import {APIResult, APIResultAuthTokenGet, APIResultUserMeDetails} from "./APIResults/APIResults";
 import { environment } from '../environments/environment';
+import { HttpEvent } from '@angular/common/http';
+import { HttpHandler } from '@angular/common/http';
+import { HttpRequest } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -21,18 +26,7 @@ export class TokensService {
     private route: ActivatedRoute,
     private http: HttpClient,
     private location: Location
-  ) {
-    this.newRefreshToken.subscribe(isValid => {
-      if (isValid) {
-        this.updateAuthToken();
-      } else {
-        this.authToken = undefined;
-        this.newAuthToken.emit(false);
-      }
-    });
-
-    this.loadRefreshToken();
-  }
+  ) { }
 
   loadRefreshToken(){
     // Load token from storage
@@ -53,16 +47,20 @@ export class TokensService {
     });
   }
 
-  updateAuthToken() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/auth/token', this.getRefreshTokenHeader()).subscribe(json => {
-      if (json.success === 'yes') {
+  updateAuthToken(): Observable<APIResult> {
+    return this.http.get<APIResult>(environment.baseUrl + '/api/auth/token', this.getRefreshTokenHeader()).pipe(
+      tap(json => this.updateTokens(json))
+    );
+  }
+
+  private updateTokens(json: APIResult) {
+    if (json.success === 'yes') {
         this.authToken = (<APIResultAuthTokenGet> json.payload).token;
         localStorage.setItem('refreshToken', this.refreshToken);
         this.newAuthToken.emit(true);
       } else {
         this.clean_tokens();
       }
-    });
   }
 
   getRefreshTokenHeader() {

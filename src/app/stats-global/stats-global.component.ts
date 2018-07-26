@@ -17,19 +17,7 @@ export class StatsGlobalComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.tokenService.refreshToken == undefined) {
-      this.router.navigate(['/index']);
-      return;
-    }
-    if (this.tokenService.authToken != undefined)
-      this.refreshUI();
-    this.tokenService.newAuthToken.subscribe(isValid => {
-      if (isValid) {
-        this.refreshUI();
-      } else {
-        this.resetUI();
-      }
-    });
+    this.refreshUI();
   }
 
   resetUI() {

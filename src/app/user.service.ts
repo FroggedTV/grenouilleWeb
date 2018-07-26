@@ -15,23 +15,14 @@ export class UserService {
   constructor(
     private tokenService: TokensService,
     private http: HttpClient
-  ) {
-    this.tokenService.newAuthToken.subscribe(isValid => {
-      if (isValid) {
-        this.updateUserMeGet();
-      } else {
-        this.steam_id = undefined;
-        this.scopes = undefined;
-      }
-    });
-  }
+  ) { }
 
   isLogged() {
     return (this.steam_id != undefined);
   }
 
   updateUserMeGet() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/user/me/details', this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.get<APIResult>(environment.baseUrl + '/api/user/me/details').subscribe(json => {
       if (json.success === 'yes') {
         let result = <APIResultUserMeDetails> json.payload;
         this.steam_id = result.steam_id;

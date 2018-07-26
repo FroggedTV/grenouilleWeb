@@ -43,19 +43,7 @@ export class ObsControlComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    if (this.tokenService.refreshToken == undefined) {
-      this.router.navigate(['/index']);
-      return;
-    }
-    if (this.tokenService.authToken != undefined)
-      this.refreshUI();
-    this.tokenService.newAuthToken.subscribe(isValid => {
-      if (isValid) {
-        this.refreshUI();
-      } else {
-        this.resetUI();
-      }
-    });
+    this.refreshUI();
   }
 
   resetUI() {
@@ -81,7 +69,7 @@ export class ObsControlComponent implements OnInit {
   }
 
   updateSceneList() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/obs/scene/list', this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.get<APIResult>(environment.baseUrl + '/api/obs/scene/list').subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         let payload = (<APIResultOBSSceneList> json.payload);
@@ -96,7 +84,7 @@ export class ObsControlComponent implements OnInit {
 
   changeScene() {
     let payload = { 'scene': this.activeSceneUI };
-    this.http.post<APIResult>(environment.baseUrl + '/api/obs/scene/update', payload , this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.post<APIResult>(environment.baseUrl + '/api/obs/scene/update', payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         this.activeScene = this.activeSceneUI;
@@ -108,7 +96,7 @@ export class ObsControlComponent implements OnInit {
   }
 
   updateOBSStatus() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/obs/status', this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.get<APIResult>(environment.baseUrl + '/api/obs/status').subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         let payload = (<APIResultOBSStatus> json.payload);
@@ -128,7 +116,7 @@ export class ObsControlComponent implements OnInit {
       url = 'start';
 
     let payload = {};
-    this.http.post<APIResult>(environment.baseUrl + '/api/obs/stream/' + url, payload , this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.post<APIResult>(environment.baseUrl + '/api/obs/stream/' + url, payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         this.statusStreaming = this.statusStreamingUI;
@@ -145,7 +133,7 @@ export class ObsControlComponent implements OnInit {
       url = 'start';
 
     let payload = {};
-    this.http.post<APIResult>(environment.baseUrl + '/api/obs/record/' + url, payload , this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.post<APIResult>(environment.baseUrl + '/api/obs/record/' + url, payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         this.statusRecording = this.statusRecordingUI;
@@ -158,7 +146,7 @@ export class ObsControlComponent implements OnInit {
 
   restartRTMP() {
     let payload = {};
-    this.http.post<APIResult>(environment.baseUrl + '/api/obs/rtmp/restart', payload , this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.post<APIResult>(environment.baseUrl + '/api/obs/rtmp/restart', payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
       } else {
@@ -168,7 +156,7 @@ export class ObsControlComponent implements OnInit {
   }
 
   updateOBSPlaylist() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/obs/playlist/get', this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.get<APIResult>(environment.baseUrl + '/api/obs/playlist/get').subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         let payload = (<APIResultOBSPlaylistGet> json.payload);
@@ -177,7 +165,7 @@ export class ObsControlComponent implements OnInit {
         this.error_text = json.error;
       }
     });
-    this.http.get<APIResult>(environment.baseUrl + '/api/vod/file/list', this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.get<APIResult>(environment.baseUrl + '/api/vod/file/list').subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         let payload = (<APIResultVODFileList> json.payload);
@@ -195,7 +183,7 @@ export class ObsControlComponent implements OnInit {
 
   pushNewOBSPlaylist() {
     let payload = {'files': this.obs_playlist};
-    this.http.post<APIResult>(environment.baseUrl + '/api/obs/playlist/update', payload , this.tokenService.getAuthTokenHeader()).subscribe(json => {
+    this.http.post<APIResult>(environment.baseUrl + '/api/obs/playlist/update', payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
       } else {

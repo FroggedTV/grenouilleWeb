@@ -1,12 +1,14 @@
 import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
+import {NgModule, Injector} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {HttpClientModule} from "@angular/common/http";
+import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 import {MyMaterialsModule} from "./my-materials.module";
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './/app-routing.module';
+import { TokensInterceptor } from './tokens.interceptor';
 import {IndexComponent} from './index/index.component';
 import {ObsControlComponent} from './obs-control/obs-control.component';
 import {VodManageComponent} from './vod-manage/vod-manage.component';
@@ -36,7 +38,12 @@ import {StatsSceneComponent} from "./stats-scene/stats-scene.component";
     BrowserAnimationsModule,
     MyMaterialsModule
   ],
-  providers: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: TokensInterceptor,
+    multi: true,
+    deps: [Injector, Router]
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

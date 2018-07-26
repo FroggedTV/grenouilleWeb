@@ -29,19 +29,7 @@ export class UserControlComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.tokenService.refreshToken == undefined) {
-      this.router.navigate(['/index']);
-      return;
-    }
-    if (this.tokenService.authToken != undefined)
-      this.refreshUI();
-    this.tokenService.newAuthToken.subscribe(isValid => {
-      if (isValid) {
-        this.refreshUI();
-      } else {
-        this.resetUI();
-      }
-    });
+    this.refreshUI();
   }
 
   resetUI() {
@@ -54,7 +42,6 @@ export class UserControlComponent implements OnInit {
   refreshUI() {
     let options = {
       params: {data: JSON.stringify({limit: this.pageSize, offset: this.pageIndex*this.pageSize})},
-      headers: this.tokenService.getAuthTokenHeader().headers
     };
     this.http.get<APIResult>(environment.baseUrl + '/api/auth/user/scope/list', options ).subscribe(json => {
       if (json.success === 'yes') {
@@ -97,7 +84,7 @@ export class UserControlComponent implements OnInit {
       scopes: [scope]
     };
 
-    this.http.post<APIResult>(environment.baseUrl + '/api/auth/user/scope/' + url, payload, this.tokenService.getAuthTokenHeader() ).subscribe(json => {
+    this.http.post<APIResult>(environment.baseUrl + '/api/auth/user/scope/' + url, payload).subscribe(json => {
       if (json.success === 'no') {
         event.source.checked = !event.source.checked;
         this.error_text = json.error;
