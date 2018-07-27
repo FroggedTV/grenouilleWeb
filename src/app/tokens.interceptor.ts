@@ -1,4 +1,3 @@
-import { APIResult } from './APIResults/APIResults';
 import { Injectable, Injector } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -6,7 +5,6 @@ import { Observable } from 'rxjs/internal/observable';
 import { EMPTY } from 'rxjs/internal/observable/empty';
 
 import { TokensService } from './tokens.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 
@@ -18,15 +16,14 @@ export class TokensInterceptor implements HttpInterceptor {
   tokensService: TokensService;
 
   constructor(
-    private injector: Injector,
-    private router: Router
+    private injector: Injector
    ) { }
 
   /**
    * Intercepts the requests made by the HttpClient, in order to add a transparent authentication mechanism.
    *  - Try to add the auth token.
    *  - If no auth token is found, we try to generate one (with another request) and then forward the original request.
-   *  - As a last resort (no auth, no refresh), we redirect to the login page.
+   *  - As a last resort (no auth, no refresh), we send a dummy response.
    *
    * If the response to any request (except the auth one...) is a 401, we also try to generate an auth token and
    * forward the original request
@@ -34,9 +31,6 @@ export class TokensInterceptor implements HttpInterceptor {
    * TODO :
    * - Handle parallel requests (do only one auth call, all other requests arriving before the auth response should
    *     "register" to this same call
-   * - TEST IT in real conditions (only tested quickly with mocks) and make sure nothing weird happens when chaining
-   *      all the Observables (loops, mixes...)
-   * - Refactor the other parts of the app which are using the old auth mechanism
    */
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Manual injection needed here...
@@ -54,6 +48,7 @@ export class TokensInterceptor implements HttpInterceptor {
     // If the request returns a 401, get a new auth token and retry it
     return requestObservable$.pipe(catchError(err => {
       if (err.status === 401) {
+          this.tokensService.authToken = undefined;
           return this.authenticateAndForwardRequest(request, next);
       }
       return throwError(err);
@@ -77,8 +72,8 @@ export class TokensInterceptor implements HttpInterceptor {
       return this.authenticateAndForwardRequest(request, next);
     }
 
-    // Case 3 : Unable to find a refresh token : redirect to the login page
-    return this.goToIndex();
+    // Case 3 : Unable to find a refresh token : return a dummy response
+    return this.dummyResponse();
   }
 
   private authenticateAndForwardRequest(request, next): Observable<HttpEvent<any>> {
@@ -87,14 +82,12 @@ export class TokensInterceptor implements HttpInterceptor {
           if (json.success === 'yes') {
             return next.handle(request.clone(this.tokensService.getAuthTokenHeader()));
           }
-          return this.goToIndex();
+          return this.dummyResponse();
         })
     );
   }
 
-  private goToIndex(): Observable<HttpEvent<any>> {
-    console.log('Unable to authenticate the user. Returning to the index.');
-    this.router.navigate(['/index']);
+  private dummyResponse(): Observable<HttpEvent<any>> {
     return EMPTY;
   }
 }
