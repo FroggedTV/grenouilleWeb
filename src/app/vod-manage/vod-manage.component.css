@@ -12,14 +12,6 @@ h1 {
   color:red;
 }
 
-.directoryTree {
-  width: 75%;
-}
-
-.directoryTree-invisible {
-  display: none;
-}
-
 .directoryTree ul,
 .directoryTree li {
   margin-top: 0;
@@ -33,4 +25,17 @@ h1 {
 
 .name-change-input {
   width: 250px;
+}
+
+ul.collapsed {
+	display: none;
+}
+
+.tree-action-button {
+  border-radius: 10px;
+  margin: 0 15px 15px 0;
+}
+.mat-tree {
+ 	border: 1px dashed black;
+ 	border-radius: 15px;
 }

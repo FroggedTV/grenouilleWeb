@@ -6,6 +6,9 @@
 </div> <br />
 
 <div class="directoryTree" >
+  <button class="tree-action-button" mat-raised-button color="accent" (click)="treeControl.collapseAll()">Collapse all folders</button>
+  <button class="tree-action-button" mat-raised-button color="accent" (click)="treeControl.expandAll()">Expand all folders</button>
+  
   <mat-tree [dataSource]="treeData" [treeControl]="treeControl">
 
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
@@ -47,10 +50,11 @@
     <mat-nested-tree-node *matTreeNodeDef="let node; when hasNestedChild" >
       <li>
         <div class="mat-tree-node" >
-          <mat-icon [class.selected]="node === file_selected" (click)="selectNode(node)" >folder</mat-icon> &nbsp;
+      	  <button mat-icon-button matTreeNodeToggle>
+        	<mat-icon [class.selected]="node === file_selected" (click)="selectNode(node)" >{{treeControl.isExpanded(node) ? "folder_open" : "folder"}}</mat-icon>
+          </button>
           <span [class.selected]="node === file_selected" (click)="selectNode(node)">{{node.filename}}</span>
             <span *ngIf="file_selected === node"> &nbsp;
-
               <button mat-icon-button (click)="createNewDirectory()" *ngIf="userService.hasScope('vod_delete')"
                       matTooltip="Créer un nouveau dossier."><mat-icon>add</mat-icon>
               </button>
@@ -78,7 +82,7 @@
               </span>
             </span>
         </div>
-        <ul [class.treeControl-invisible]="!treeControl.isExpanded(node)">
+        <ul [class.collapsed]="!treeControl.isExpanded(node)">
           <ng-container matTreeNodeOutlet></ng-container>
         </ul>
       </li>

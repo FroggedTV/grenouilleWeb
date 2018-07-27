@@ -106,6 +106,11 @@ export class VodManageComponent implements OnInit {
         this.error_text = undefined;
         let result = <APIResultVODFileList> json.payload;
         this.treeData.data = this.build_tree(result);
+        this.treeControl.dataNodes = this.treeData.data;
+        // Open the first level of folders
+        for (let node of this.treeData.data) {
+          this.treeControl.expand(node)
+        }
       } else {
         this.error_text = json.error;
       }
