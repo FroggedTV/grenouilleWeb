@@ -31,12 +31,14 @@ export class APIResultUserScopeList {
   }[];
 }
 
+export class SimpleFile {
+  filename: string;
+  type: string;
+  size: number;
+}
+
 export class APIResultVODFileList {
-  vod: {
-    filename: string;
-    type: string;
-    size: number;
-  }[];
+  vod: SimpleFile[];
 }
 
 export class APIResultOBSPlaylistGet {

@@ -28,45 +28,59 @@
 <h4>Playlist de rediffusion</h4>
 
 <h5>Actuelle</h5>
-<div class="div-centered">
-  {{ obs_playlist[obs_playlist_selected] }} &nbsp;
-  <button mat-icon-button (click)="upFileInPlaylist()"
-          *ngIf="obs_playlist_selected != undefined"
-          matTooltip="Remonter dans la playlist.">
-    <mat-icon>arrow_drop_up</mat-icon>
-  </button>
-  <button mat-icon-button (click)="downFileInPlaylist()"
-          *ngIf="obs_playlist_selected != undefined"
-          matTooltip="Descendre dans la playlist.">
-    <mat-icon>arrow_drop_down</mat-icon>
-  </button>
-  <button mat-icon-button (click)="removeFileFromPlaylist()"
-          *ngIf="obs_playlist_selected != undefined"
-          matTooltip="Supprimer de la playlist.">
-    <mat-icon>delete</mat-icon>
-  </button>
-  <button mat-icon-button><mat-icon style="visibility: hidden">delete</mat-icon></button>
-</div>
 
-<div class="playlist_live">
-  <ul>
-    <li *ngFor="let file of obs_playlist; let i = index" (click)="obs_playlist_selected = i" [class.selected]="i === obs_playlist_selected">{{file}}</li>
-  </ul>
+<div class="playlist-container subsection">
+
+    <div class="playlist-zone" dnd-sortable-container [sortableData]="obs_playlist" [dropZones]="['delete-dropZone']">
+      <ul class="list-group">
+        <li *ngFor="let file of obs_playlist; let i = index" class="list-group-item" dnd-sortable [sortableIndex]="i">
+        <mat-icon color="primary">videocam</mat-icon>&nbsp;<span>{{file}}</span>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="delete-zone centered-zone" dnd-sortable-container [dropZones]="['delete-dropZone']" [sortableData]="removedFromPlaylist">
+      <mat-icon class="delete-icon">delete</mat-icon><br/>
+      <span class="delete-desc">Drop here to remove from the playlist</span>
+    </div>
+
+    <div class="validate-zone centered-zone">
+      <button mat-raised-button color="warn" (click)="pushNewOBSPlaylist()"
+        matTooltip="Be careful, this will reset the current rebroadcast !">Send the current playlist to OBS</button>
+    </div>
+
 </div>
 
 <h5>Fichiers disponibles</h5>
-<div class="div-centered">
-  {{ obs_files[obs_files_selected] }} &nbsp;
-  <button mat-icon-button (click)="addSelectedToPlaylist()"
-          *ngIf="obs_files_selected != undefined"
-          matTooltip="Ajouter en fin de la playlist.">
-    <mat-icon>add</mat-icon>
-  </button>
-  <button mat-icon-button><mat-icon style="visibility: hidden">delete</mat-icon></button>
-</div>
 
-<div class="playlist_files">
-  <ul>
-    <li *ngFor="let file of obs_files; let i = index" (click)="obs_files_selected = i" [class.selected]="i === obs_files_selected">{{file}}</li>
-  </ul>
+<div class="directoryTree subsection" >
+  <button class="tree-action-button" mat-raised-button color="primary" (click)="treeControl.collapseAll()">Collapse all folders</button>
+  <button class="tree-action-button" mat-raised-button color="primary" (click)="treeControl.expandAll()">Expand all folders</button>
+  
+  <mat-tree [dataSource]="treeData" [treeControl]="treeControl">
+
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+      <li class="mat-tree-node">
+        <mat-icon color="primary">videocam</mat-icon>&nbsp;<span>{{node.filename}}</span>
+       	<button mat-icon-button (click)="addToPlaylist(node)" matTooltip="Ajouter en fin de la playlist." color="accent">
+          <mat-icon>add</mat-icon>
+        </button>
+      </li>
+    </mat-tree-node>
+
+    <mat-nested-tree-node *matTreeNodeDef="let node; when hasNestedChild" >
+      <li>
+        <div class="mat-tree-node" >
+      	  <button mat-icon-button matTreeNodeToggle>
+        	<mat-icon>{{treeControl.isExpanded(node) ? "folder_open" : "folder"}}</mat-icon>
+          </button>
+          <span>{{node.filename}}</span>
+        </div>
+        <ul [class.collapsed]="!treeControl.isExpanded(node)">
+          <ng-container matTreeNodeOutlet></ng-container>
+        </ul>
+      </li>
+    </mat-nested-tree-node>
+
+  </mat-tree>
 </div>

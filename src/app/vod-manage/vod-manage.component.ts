@@ -4,64 +4,16 @@ import {HttpClient} from "@angular/common/http";
 import {TokensService} from "../tokens.service";
 import {APIResult, APIResultVODFileList} from "../APIResults/APIResults";
 import {environment} from "../../environments/environment";
-import {NestedTreeControl} from "@angular/cdk/tree";
-import {MatTreeNestedDataSource} from "@angular/material";
-import {of} from "rxjs/internal/observable/of";
 import {UserService} from "../user.service";
-
-class FileNode {
-  children: FileNode[];
-  filename: string;
-  full_path: string;
-  type: any;
-  size: number;
-
-  constructor(filename, type, size, full_path) {
-    this.filename = filename;
-    this.type = type;
-    this.size = size;
-    this.children = [];
-    this.full_path = full_path;
-  }
-
-  add_child(node: FileNode) {
-    this.children.push(node);
-  }
-
-  add_child_from_json(filename, type, size, full_path) {
-    if (filename.indexOf('/') >= 0) {
-      let root = filename.slice(0, filename.indexOf('/'));
-      let file_remaining = filename.slice(filename.indexOf('/') + 1, filename.length);
-
-      let root_node = undefined;
-      for (let child in this.children) {
-        if (this.children[child].filename === root) {
-          root_node = this.children[child];
-          continue;
-        }
-      }
-      if (root_node === undefined) {
-        root_node = new FileNode(root, 'dir', undefined, full_path.slice(0, full_path.length-file_remaining.length));
-        this.add_child(root_node);
-      }
-      root_node.add_child_from_json(file_remaining, type, size, full_path);
-    } else {
-      this.add_child(new FileNode(filename, type, size, full_path));
-    }
-  }
-
-}
+import { AbstractFileTreeComponent } from '../shared/file-tree/abstract-file-tree.component'
 
 @Component({
   selector: 'app-vod-manage',
   templateUrl: './vod-manage.component.html',
-  styleUrls: ['./vod-manage.component.css']
+  styleUrls: ['./vod-manage.component.css', '../shared/file-tree/file-tree.css']
 })
-export class VodManageComponent implements OnInit {
-  treeControl: NestedTreeControl<FileNode>;
-  treeData: MatTreeNestedDataSource<FileNode>;
+export class VodManageComponent extends AbstractFileTreeComponent implements OnInit {
 
-  error_text = undefined;
   file_selected = undefined;
   deleteConfirmation = undefined;
   moveSelection = undefined;
@@ -71,16 +23,12 @@ export class VodManageComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private http: HttpClient,
+    http: HttpClient,
     private tokenService: TokensService,
     public userService: UserService
   ) {
-    this.treeControl = new NestedTreeControl<FileNode>(this._getChildren);
-    this.treeData = new MatTreeNestedDataSource();
+    super(http);
   }
-
-  hasNestedChild = (_: number, nodeData: FileNode) => nodeData.type === 'dir';
-  private _getChildren = (node: FileNode) => of(node.children);
 
   ngOnInit() {
     this.refreshUI();
@@ -97,33 +45,7 @@ export class VodManageComponent implements OnInit {
   }
 
   refreshUI() {
-    let options = {
-      params: {data: JSON.stringify({})},
-      headers: this.tokenService.getAuthTokenHeader().headers
-    };
-    this.http.get<APIResult>(environment.baseUrl + '/api/vod/file/list', options ).subscribe(json => {
-      if (json.success === 'yes') {
-        this.error_text = undefined;
-        let result = <APIResultVODFileList> json.payload;
-        this.treeData.data = this.build_tree(result);
-        this.treeControl.dataNodes = this.treeData.data;
-        // Open the first level of folders
-        for (let node of this.treeData.data) {
-          this.treeControl.expand(node)
-        }
-      } else {
-        this.error_text = json.error;
-      }
-    });
-  }
-
-  build_tree(json_data: APIResultVODFileList) {
-    let node_root = new FileNode('/', 'dir', 0, '');
-    for (let entry in json_data.vod) {
-      let file = json_data.vod[entry];
-      node_root.add_child_from_json(file.filename, file.type, file.size, file.filename);
-    }
-    return node_root.children;
+    super.refreshFileList('/api/vod/file/list', payload => (<APIResultVODFileList><any> payload).vod);
   }
 
   selectNode(node) {

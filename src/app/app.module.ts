@@ -5,6 +5,7 @@ import {HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import {MyMaterialsModule} from "./my-materials.module";
+import {DndModule} from 'ng2-dnd';
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './/app-routing.module';
@@ -36,7 +37,8 @@ import {StatsSceneComponent} from "./stats-scene/stats-scene.component";
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MyMaterialsModule
+    MyMaterialsModule,
+    DndModule.forRoot()
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,

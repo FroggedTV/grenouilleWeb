@@ -1,3 +1,5 @@
+@import "node_modules/ng2-dnd/bundles/style.css";
+
 .error_text {
   color:red;
 }
@@ -6,10 +8,6 @@
   text-align: center;
   margin-left: auto;
   margin-right: auto;
-}
-
-.playlist_live, .playlist_files {
-
 }
 
 .selected {
@@ -22,4 +20,47 @@
 
 h1 {
   text-align:center;
+}
+
+.subsection {
+  margin-left: 20px;
+}
+
+.playlist-container {
+  display: flex;
+}
+
+.playlist-container div:not(:first-child) {
+  margin-left: 50px;
+}
+
+.centered-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.playlist-zone li,
+.playlist-zone ul {
+  margin: 5px 0;
+  padding: 0;
+  list-style-type: none;
+}
+.playlist-zone li .mat-icon {
+	vertical-align: middle;
+}
+.delete-zone {
+  color: #AAAAAA;
+  border: 1px dashed #AAAAAA;
+  border-radius: 10px;
+}
+.delete-zone .delete-icon {
+  font-size: 100px;
+  height: 100px;
+  width: 100px;
+  line-height: 100px;
+}
+.delete-zone .delete-desc {
+  margin: 0 20px 10px 20px;
 }

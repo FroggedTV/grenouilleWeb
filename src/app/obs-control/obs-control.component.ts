@@ -12,13 +12,14 @@ import {
 import {environment} from "../../environments/environment";
 import {Router} from "@angular/router";
 import {UserService} from "../user.service";
+import { AbstractFileTreeComponent } from '../shared/file-tree/abstract-file-tree.component'
 
 @Component({
   selector: 'app-obs-control',
   templateUrl: './obs-control.component.html',
-  styleUrls: ['./obs-control.component.css']
+  styleUrls: ['./obs-control.component.css', '../shared/file-tree/file-tree.css']
 })
-export class ObsControlComponent implements OnInit {
+export class ObsControlComponent extends AbstractFileTreeComponent implements OnInit {
 
   statusStreaming: boolean = false;
   statusRecording: boolean = false;
@@ -29,24 +30,23 @@ export class ObsControlComponent implements OnInit {
   statusRecordingUI: boolean = false;
   activeSceneUI: string = '';
   obs_playlist: string[] = [];
-  obs_playlist_selected = undefined;
-  obs_files: string[] = [];
-  obs_files_selected = undefined;
-
-  error_text = '';
+  removedFromPlaylist: string[] = [];
 
   constructor(
     private router: Router,
-    private http: HttpClient,
+    http: HttpClient,
     private tokenService: TokensService,
     private userService: UserService
-  ) {}
-
+  ) {
+    super(http);
+  }
+  
   ngOnInit() {
     this.refreshUI();
   }
 
   resetUI() {
+    this.treeData.data = [];
     this.statusStreaming = false;
     this.statusRecording = false;
     this.scenes = [];
@@ -55,9 +55,6 @@ export class ObsControlComponent implements OnInit {
     this.statusRecordingUI = false;
     this.activeSceneUI = '';
     this.obs_playlist = [];
-    this.obs_playlist_selected = undefined;
-    this.obs_files = [];
-    this.obs_files_selected = undefined;
     this.error_text = undefined;
   }
 
@@ -165,20 +162,7 @@ export class ObsControlComponent implements OnInit {
         this.error_text = json.error;
       }
     });
-    this.http.get<APIResult>(environment.baseUrl + '/api/vod/file/list').subscribe(json => {
-      if (json.success === 'yes') {
-        this.error_text = undefined;
-        let payload = (<APIResultVODFileList> json.payload);
-        this.obs_files = [];
-        for (let file in payload.vod) {
-          if (payload.vod[file].type === 'file') {
-            this.obs_files.push(payload.vod[file].filename);
-          }
-        }
-      } else {
-        this.error_text = json.error;
-      }
-    });
+    super.refreshFileList('/api/vod/file/list', payload => (<APIResultVODFileList><any> payload).vod);
   }
 
   pushNewOBSPlaylist() {
@@ -192,43 +176,8 @@ export class ObsControlComponent implements OnInit {
     });
   }
 
-  addSelectedToPlaylist() {
-    if (this.obs_files_selected === undefined) return;
-
-    this.obs_playlist.push(this.obs_files[this.obs_files_selected]);
-    this.pushNewOBSPlaylist();
-  }
-
-  upFileInPlaylist() {
-    if (this.obs_playlist_selected === undefined) return;
-    if (this.obs_playlist_selected === 0) return;
-
-    let save = this.obs_playlist[this.obs_playlist_selected - 1];
-    this.obs_playlist[this.obs_playlist_selected - 1] = this.obs_playlist[this.obs_playlist_selected];
-    this.obs_playlist[this.obs_playlist_selected] = save;
-    this.obs_playlist_selected--;
-
-    this.pushNewOBSPlaylist();
-  }
-
-  downFileInPlaylist() {
-    if (this.obs_playlist_selected === undefined) return;
-    if (this.obs_playlist_selected === this.obs_playlist.length-1) return;
-
-    let save = this.obs_playlist[this.obs_playlist_selected + 1];
-    this.obs_playlist[this.obs_playlist_selected + 1] = this.obs_playlist[this.obs_playlist_selected];
-    this.obs_playlist[this.obs_playlist_selected] = save;
-    this.obs_playlist_selected++;
-
-    this.pushNewOBSPlaylist();
-  }
-
-  removeFileFromPlaylist() {
-    if (this.obs_playlist_selected === undefined) return;
-    this.obs_playlist.splice(this.obs_playlist_selected, 1);
-    this.obs_playlist_selected = undefined;
-
-    this.pushNewOBSPlaylist();
+  addToPlaylist(node) {
+    this.obs_playlist.push(node.full_path);
   }
 
 }

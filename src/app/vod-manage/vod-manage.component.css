@@ -12,30 +12,10 @@ h1 {
   color:red;
 }
 
-.directoryTree ul,
-.directoryTree li {
-  margin-top: 0;
-  margin-bottom: 0;
-  list-style-type: none;
-}
-
 .selected {
   color:blue;
 }
 
 .name-change-input {
   width: 250px;
-}
-
-ul.collapsed {
-	display: none;
-}
-
-.tree-action-button {
-  border-radius: 10px;
-  margin: 0 15px 15px 0;
-}
-.mat-tree {
- 	border: 1px dashed black;
- 	border-radius: 15px;
 }

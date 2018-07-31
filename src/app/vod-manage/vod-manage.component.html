@@ -6,14 +6,14 @@
 </div> <br />
 
 <div class="directoryTree" >
-  <button class="tree-action-button" mat-raised-button color="accent" (click)="treeControl.collapseAll()">Collapse all folders</button>
-  <button class="tree-action-button" mat-raised-button color="accent" (click)="treeControl.expandAll()">Expand all folders</button>
+  <button class="tree-action-button" mat-raised-button color="primary" (click)="treeControl.collapseAll()">Collapse all folders</button>
+  <button class="tree-action-button" mat-raised-button color="primary" (click)="treeControl.expandAll()">Expand all folders</button>
   
   <mat-tree [dataSource]="treeData" [treeControl]="treeControl">
 
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
       <li class="mat-tree-node">
-        <mat-icon (click)="selectNode(node)" [class.selected]="node === file_selected">videocam</mat-icon>&nbsp;
+        <mat-icon color="primary" (click)="selectNode(node)" [class.selected]="node === file_selected">videocam</mat-icon>&nbsp;
         <span (click)="selectNode(node)" [class.selected]="node === file_selected">
           {{node.filename}} &nbsp; ({{node.size / 1048576 / 1024 | number:'1.1-2'}} Go)
         </span>
