@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from "../../environments/environment";
 import { APIResult } from "../APIResults/APIResults";
 import { HttpClient } from "@angular/common/http";
+import {ChannelService} from "../channel.service";
+import {UserService} from "../user.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-stats-scene',
@@ -10,43 +13,53 @@ import { HttpClient } from "@angular/common/http";
 })
 export class CalendarComponent implements OnInit {
 
-  froggedCurrentWeek: string;
-  froggedNextWeek: string;
-  artifactCurrentWeek: string;
-  artifactNextWeek: string;
+  calendar_halfday: string[];
+  calendar_fullday: string[];
   error_text: string = undefined;
 
   constructor(
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    private channelService: ChannelService,
+    private userService: UserService,
+    private router: Router
+  ) {
+    this.channelService.channelChanged.subscribe(channel => {
+      if (!this.userService.hasScope(channel, 'calendar')) {
+        this.router.navigate(['/index']);
+      } else {
+        this.refreshUI();
+      }
+    });
+  }
 
   ngOnInit() {
-    this.froggedCurrentWeek = environment.baseUrl + '/api/stats/img/calendar_frogged_now';
-    this.froggedNextWeek = environment.baseUrl + '/api/stats/img/calendar_frogged_next';
-    this.artifactCurrentWeek = environment.baseUrl + '/api/stats/img/calendar_artifact_fr_now';
-    this.artifactNextWeek = environment.baseUrl + '/api/stats/img/calendar_artifact_fr_next';
-    this.error_text = undefined;
-
-    this.imageGenerationUpdate();
+    this.refreshUI();
   }
 
   rebuildCalendar() {
-    this.error_text = undefined;
-    this.http.post<APIResult>(environment.baseUrl + '/api/calendar/generate', {}).subscribe(json => {
+    let payload = {
+      'channel': this.channelService.channel
+    };
+    this.http.post<APIResult>(environment.baseUrl + '/api/calendar/generate', payload).subscribe(json => {
       if (json.success === 'yes') {
-        this.imageGenerationUpdate();
+        this.error_text = undefined;
+        this.refreshUI();
       } else {
         this.error_text = json['error']
       }
     });
   }
 
-  imageGenerationUpdate() {
+  refreshUI() {
     let cache_busting = '?m=' + Math.floor((Math.random()*100000)).toString();
-    this.froggedCurrentWeek = environment.baseUrl + '/api/stats/img/calendar_frogged_now' + cache_busting;
-    this.froggedNextWeek = environment.baseUrl + '/api/stats/img/calendar_frogged_next' + cache_busting;
-    this.artifactCurrentWeek = environment.baseUrl + '/api/stats/img/calendar_artifact_fr_now' + cache_busting;
-    this.artifactNextWeek = environment.baseUrl + '/api/stats/img/calendar_artifact_fr_next' + cache_busting;
+    this.calendar_halfday = [
+      environment.baseUrl + '/api/calendar/img/calendar_' + this.channelService.channel + '_current_10h2h.png' + cache_busting,
+      environment.baseUrl + '/api/calendar/img/calendar_' + this.channelService.channel + '_next_10h2h.png' + cache_busting
+    ];
+    this.calendar_fullday = [
+      environment.baseUrl + '/api/calendar/img/calendar_' + this.channelService.channel + '_current_0h0h.png' + cache_busting,
+      environment.baseUrl + '/api/calendar/img/calendar_' + this.channelService.channel + '_next_0h0h.png' + cache_busting
+    ];
   }
 
 }

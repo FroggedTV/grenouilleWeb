@@ -22,6 +22,10 @@ mat-header-cell {
   margin-right: auto;
 }
 
+.centered_header {
+  text-align: center;
+}
+
 .mat-column-user_scope, .mat-column-obs_control, .mat-column-vod_manage, .mat-column-vod_delete, .mat-column-stats_manage, .mat-column-stats_manage_scene, .mat-column-calendar {
   width: 70px;
   text-align: center;

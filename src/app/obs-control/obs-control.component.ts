@@ -12,6 +12,7 @@ import {
 import {environment} from "../../environments/environment";
 import {Router} from "@angular/router";
 import {UserService} from "../user.service";
+import {ChannelService} from "../channel.service";
 import { AbstractFileTreeComponent } from '../shared/file-tree/abstract-file-tree.component'
 
 @Component({
@@ -32,15 +33,23 @@ export class ObsControlComponent extends AbstractFileTreeComponent implements On
   obs_playlist: string[] = [];
   removedFromPlaylist: string[] = [];
 
-  disk_info: APIResultVODDiskUsage = undefined;
+  disk_info: APIResultVODDiskUsage = { vod_size: 1, disk_free: 1, disk_total: 1, disk_used: 1 };
 
   constructor(
     private router: Router,
     http: HttpClient,
     private tokenService: TokensService,
-    private userService: UserService
+    private userService: UserService,
+    private channelService: ChannelService
   ) {
     super(http);
+    this.channelService.channelChanged.subscribe(channel => {
+      if (!this.userService.hasScope(channel, 'obs_control')) {
+        this.router.navigate(['/index']);
+      } else {
+        this.refreshUI();
+      }
+    });
   }
 
   ngOnInit() {
@@ -58,33 +67,34 @@ export class ObsControlComponent extends AbstractFileTreeComponent implements On
     this.activeSceneUI = '';
     this.obs_playlist = [];
     this.error_text = undefined;
-    this.disk_info = undefined
+    this.disk_info = { vod_size: 1, disk_free: 1, disk_total: 1, disk_used: 1 };
   }
 
   refreshUI() {
     this.error_text = undefined;
     this.updateSceneList();
     this.updateOBSStatus();
-    this.updateOBSPlaylist();
-    this.updateDiskUsage();
+    //this.updateOBSPlaylist();
+    //this.updateDiskUsage();
   }
 
   updateSceneList() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/obs/scene/list').subscribe(json => {
-      if (json.success === 'yes') {
-        this.error_text = undefined;
-        let payload = (<APIResultOBSSceneList> json.payload);
-        this.activeScene = payload.active_scene;
-        this.activeSceneUI = payload.active_scene;
-        this.scenes = payload.scenes;
-      } else {
-        this.error_text = json.error;
-      }
+    this.http.get<APIResult>(environment.baseUrl + '/api/obs/scene/list',
+      { params: {data: JSON.stringify({'channel': this.channelService.channel })} }).subscribe(json => {
+        if (json.success === 'yes') {
+          this.error_text = undefined;
+          let payload = (<APIResultOBSSceneList> json.payload);
+          this.activeScene = payload.active_scene;
+          this.activeSceneUI = payload.active_scene;
+          this.scenes = payload.scenes;
+        } else {
+          this.error_text = json.error;
+        }
     });
   }
 
   changeScene() {
-    let payload = { 'scene': this.activeSceneUI };
+    let payload = { 'channel': this.channelService.channel, 'scene': this.activeSceneUI };
     this.http.post<APIResult>(environment.baseUrl + '/api/obs/scene/update', payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
@@ -97,7 +107,8 @@ export class ObsControlComponent extends AbstractFileTreeComponent implements On
   }
 
   updateOBSStatus() {
-    this.http.get<APIResult>(environment.baseUrl + '/api/obs/status').subscribe(json => {
+    this.http.get<APIResult>(environment.baseUrl + '/api/obs/status',
+      { params: {data: JSON.stringify({'channel': this.channelService.channel })} }).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
         let payload = (<APIResultOBSStatus> json.payload);
@@ -116,7 +127,7 @@ export class ObsControlComponent extends AbstractFileTreeComponent implements On
     if (this.statusStreamingUI)
       url = 'start';
 
-    let payload = {};
+    let payload = {'channel': this.channelService.channel};
     this.http.post<APIResult>(environment.baseUrl + '/api/obs/stream/' + url, payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;
@@ -133,7 +144,7 @@ export class ObsControlComponent extends AbstractFileTreeComponent implements On
     if (this.statusRecordingUI)
       url = 'start';
 
-    let payload = {};
+    let payload = {'channel': this.channelService.channel};
     this.http.post<APIResult>(environment.baseUrl + '/api/obs/record/' + url, payload).subscribe(json => {
       if (json.success === 'yes') {
         this.error_text = undefined;

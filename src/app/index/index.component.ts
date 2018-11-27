@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { TokensService } from "../tokens.service";
 import {environment} from "../../environments/environment";
 import {UserService} from "../user.service";
+import {ChannelService} from "../channel.service";
 
 @Component({
   selector: 'app-index',
@@ -15,7 +16,8 @@ export class IndexComponent implements OnInit {
 
   constructor(
     public tokenService: TokensService,
-    public userService: UserService
+    public userService: UserService,
+    public channelService: ChannelService
   ) { }
 
   ngOnInit() {}

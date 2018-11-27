@@ -27,3 +27,12 @@
   padding: 15px;
   flex-grow:  1;
 }
+
+.channel_selector {
+  width: 150px;
+  text-align:right;
+}
+
+.header_title {
+  flex:1;
+}

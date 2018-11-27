@@ -1,6 +1,7 @@
 import { UserService } from './user.service';
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
+import {ChannelService} from "./channel.service";
 
 @Component({
   selector: 'app-root',
@@ -9,10 +10,13 @@ import {ActivatedRoute, Router} from "@angular/router";
 })
 export class AppComponent implements OnInit {
 
+  twitch_channel: String = 'froggedtv';
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private channelService: ChannelService
   ) {}
 
   ngOnInit(): void {
@@ -25,6 +29,10 @@ export class AppComponent implements OnInit {
     });
 
     this.userService.updateUserMeGet();
+  }
+
+  channelChanged($event) {
+    this.channelService.channelChanged.emit($event.value);
   }
 
 }

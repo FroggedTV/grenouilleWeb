@@ -1,14 +1,15 @@
 
 <mat-nav-list>
   <mat-divider></mat-divider>
+  <mat-divider></mat-divider>
   <a mat-list-item routerLink="/index" routerLinkActive="active">Index</a>
-  <mat-divider *ngIf="userService.hasScope('user_scope') || userService.hasScope('obs_control') || userService.hasScope('vod_manage')"></mat-divider>
-  <a mat-list-item *ngIf="userService.hasScope('user_scope')" routerLink="/user/manage" routerLinkActive="active">Users</a>
-  <a mat-list-item *ngIf="userService.hasScope('calendar')" routerLink="/calendar" routerLinkActive="active">Calendrier</a>
-  <a mat-list-item *ngIf="userService.hasScope('obs_control')" routerLink="/obs/control" routerLinkActive="active">OBSControls</a>
-  <a mat-list-item *ngIf="userService.hasScope('vod_manage')" routerLink="/vod/manage" routerLinkActive="active">VODManage</a>
-  <mat-divider *ngIf="userService.hasScope('stats_manage') || userService.hasScope('stats_manage_scene')"></mat-divider>
-  <a mat-list-item *ngIf="userService.hasScope('stats_manage')" routerLink="/stats/csv" routerLinkActive="active">Stats CSV</a>
-  <a mat-list-item *ngIf="userService.hasScope('stats_manage_scene')" routerLink="/stats/scene/control" routerLinkActive="active">Stats Scene</a>
+  <mat-divider *ngIf="userService.hasScopeInCurrentChannel('user_scope') || userService.hasScopeInCurrentChannel('obs_control') || userService.hasScopeInCurrentChannel('vod_manage')"></mat-divider>
+  <a mat-list-item *ngIf="userService.hasScopeInCurrentChannel('user_scope')" routerLink="/user/manage" routerLinkActive="active">Users</a>
+  <a mat-list-item *ngIf="userService.hasScopeInCurrentChannel('calendar')" routerLink="/calendar" routerLinkActive="active">Calendrier</a>
+  <a mat-list-item *ngIf="userService.hasScopeInCurrentChannel('obs_control')" routerLink="/obs/control" routerLinkActive="active">OBSControls</a>
+  <a mat-list-item *ngIf="userService.hasScopeInCurrentChannel('vod_manage')" routerLink="/vod/manage" routerLinkActive="active">VODManage</a>
+  <mat-divider *ngIf="userService.hasScopeInCurrentChannel('stats_manage') || userService.hasScopeInCurrentChannel('stats_manage_scene')"></mat-divider>
+  <a mat-list-item *ngIf="userService.hasScopeInCurrentChannel('stats_manage')" routerLink="/stats/csv" routerLinkActive="active">Stats CSV</a>
+  <a mat-list-item *ngIf="userService.hasScopeInCurrentChannel('stats_manage_scene')" routerLink="/stats/scene/control" routerLinkActive="active">Stats Scene</a>
   <mat-divider></mat-divider>
 </mat-nav-list>

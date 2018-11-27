@@ -10,7 +10,9 @@ export class APIResultAuthTokenGet {
 
 export class APIResultUserMeDetails {
   steam_id: string;
-  scopes: string[];
+  scopes: {
+    [id: string]: string[]
+  };
 }
 
 export class APIResultOBSSceneList {
@@ -27,8 +29,14 @@ export class APIResultUserScopeList {
   total: number;
   users: {
     id: string;
+    name: string;
     scopes: string[];
   }[];
+}
+
+export class APIResultUserNameRefresh {
+  id: string;
+  name: string;
 }
 
 export class SimpleFile {

@@ -15,12 +15,12 @@
 <div *ngIf="userService.isLogged()">
   <div>
     Vous êtes connecté avec le SteamID(64bits) suivant: {{userService.steam_id}} <br /> <br />
-    <span *ngIf="userService.scopes.length != 0">Vous avez accès aux droits suivants:
+    <span *ngIf="userService.scopes[channelService.channel] != undefined && userService.scopes[channelService.channel].length != 0">Vous avez accès aux droits suivants:
       <ul>
-        <li *ngFor="let scope of userService.scopes">{{scope}}</li>
+        <li *ngFor="let scope of userService.scopes[channelService.channel]">{{scope}}</li>
       </ul>
     </span>
-    <span *ngIf="userService.scopes.length === 0">Vous n'avez accès à aucun droit.</span>
+    <span *ngIf="userService.scopes[channelService.channel] == undefined || userService.scopes[channelService.channel].length === 0">Vous n'avez accès à aucun droit.</span>
   </div>
 
   <br />

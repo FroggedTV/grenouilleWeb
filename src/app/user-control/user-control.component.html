@@ -10,8 +10,19 @@
   <table mat-table [dataSource]="usersData" class="mat-elevation-z8">
 
     <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> SteamID (64bits) </th>
+      <th class="centered_header"  mat-header-cell *matHeaderCellDef> SteamID (64bits) </th>
       <td mat-cell *matCellDef="let element"><a href="https://steamcommunity.com/profiles/{{element.id}}">{{element.id}}</a></td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th class="centered_header" mat-header-cell *matHeaderCellDef> Name </th>
+
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="refreshUserName(element.id)"
+                matTooltip="Mettre à jour le nom de l'utilisateur à partir de Steam."><mat-icon>refresh</mat-icon>
+        </button>
+        {{element.name}}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="user_scope">

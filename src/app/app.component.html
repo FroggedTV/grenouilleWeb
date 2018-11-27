@@ -1,6 +1,13 @@
 <div class="container">
   <mat-toolbar color="primary" class="toolbar">
-    <h1>GrenouilleWeb</h1>
+    <h1 class="header_title">GrenouilleWeb</h1>
+
+
+    <mat-select class="channel_selector" [(ngModel)]="channelService.channel" (selectionChange)="channelChanged($event)">
+      <mat-option [value]="'froggedtv'">FroggedTV</mat-option>
+      <mat-option [value]="'artifact_fr'">Artifact_FR</mat-option>
+    </mat-select>
+
   </mat-toolbar>
 
   <div class="sidenav-container">

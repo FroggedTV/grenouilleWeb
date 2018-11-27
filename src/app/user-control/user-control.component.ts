@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
-import {TokensService} from "../tokens.service";
-import {APIResult, APIResultUserScopeList} from "../APIResults/APIResults";
+import {APIResult, APIResultUserNameRefresh, APIResultUserScopeList} from "../APIResults/APIResults";
 import {environment} from "../../environments/environment";
 import {UserService} from "../user.service";
+import {ChannelService} from "../channel.service";
 
 @Component({
   selector: 'app-user-control',
@@ -13,7 +13,7 @@ import {UserService} from "../user.service";
 })
 export class UserControlComponent implements OnInit {
 
-  displayColumn = ['id', 'user_scope', 'calendar', 'obs_control', 'vod_manage', 'vod_delete', 'stats_manage', 'stats_manage_scene'];
+  displayColumn = ['id', 'name', 'user_scope', 'calendar', 'obs_control', 'vod_manage', 'vod_delete'];
   usersData = [];
   totalDisplay: number = 0;
   pageSize: number = 10;
@@ -24,24 +24,26 @@ export class UserControlComponent implements OnInit {
   constructor(
     private router: Router,
     private http: HttpClient,
-    private tokenService: TokensService,
+    private channelService: ChannelService,
     private userService: UserService
-  ) { }
+  ) {
+    this.channelService.channelChanged.subscribe(channel => {
+      if (!this.userService.hasScope(channel, 'user_scope')) {
+        console.log(this.userService.scopes);
+        this.router.navigate(['/index']);
+      } else {
+        this.refreshUI();
+      }
+    });
+  }
 
   ngOnInit() {
     this.refreshUI();
   }
 
-  resetUI() {
-    this.usersData = [];
-    this.totalDisplay = 0;
-    this.pageSize = 10;
-    this.pageIndex = 0;
-  }
-
   refreshUI() {
     let options = {
-      params: {data: JSON.stringify({limit: this.pageSize, offset: this.pageIndex*this.pageSize})},
+      params: {data: JSON.stringify({channel: this.channelService.channel, limit: this.pageSize, offset: this.pageIndex*this.pageSize})},
     };
     this.http.get<APIResult>(environment.baseUrl + '/api/auth/user/scope/list', options ).subscribe(json => {
       if (json.success === 'yes') {
@@ -52,6 +54,7 @@ export class UserControlComponent implements OnInit {
         for (let user of result.users) {
           let user_data = {
             id: user.id,
+            name: user.name,
             user_scope: user.scopes.indexOf('user_scope') >= 0,
             calendar: user.scopes.indexOf('calendar') >= 0,
             obs_control: user.scopes.indexOf('obs_control') >= 0,
@@ -63,6 +66,27 @@ export class UserControlComponent implements OnInit {
           new_data.push(user_data);
         }
         this.usersData = new_data;
+      } else {
+        this.error_text = json.error;
+      }
+    });
+  }
+
+  refreshUserName(userId) {
+    let payload = {
+      id: userId,
+      channel: this.channelService.channel
+    };
+
+    this.http.post<APIResult>(environment.baseUrl + '/api/user/name/refresh', payload).subscribe(json => {
+      if (json.success === 'yes') {
+        this.error_text = undefined;
+        let result = (<APIResultUserNameRefresh>json.payload);
+        for (let index in this.usersData) {
+          if (this.usersData[index]['id'] == result.id) {
+            this.usersData[index]['name'] = result.name;
+          }
+        }
       } else {
         this.error_text = json.error;
       }
@@ -82,6 +106,7 @@ export class UserControlComponent implements OnInit {
 
     let payload = {
       id: id,
+      channel: this.channelService.channel,
       scopes: [scope]
     };
 
