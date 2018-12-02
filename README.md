@@ -1,5 +1,8 @@
 # GrenouilleWeb
 
+This deposit is now deprecated. 
+The new StreamProxy deposit is now a modular service with a [backend](https://github.com/FroggedTV/StreamProxyBackend) and a [frontend](https://github.com/FroggedTV/StreamProxyFrontend) exclusivly designed for the stream proxy. Other services specificaly designed for Dota 2 and the FroggedTV will be created in a new deposit.
+
 Project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.0.8.
 
 ## Development server
